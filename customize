@@ -1,0 +1,49 @@
+#!/usr/bin/bash
+#
+# Put customizations to your image in this file.
+
+PATH=/opt/local/gnu/bin:/opt/local/bin:/opt/local/sbin:/usr/bin:/usr/sbin
+
+# Exit if any commands fail
+set -o errexit
+
+# Add users to groups
+echo "* Add dovecot and clamav users to mail group"
+usermod -G mail dovecot
+usermod -G mail clamav
+
+# Create extra user for spamd
+echo "* Create spamd group and user"
+groupadd spamd
+useradd -d /var/spamassassin -c "spamassassin spamd user" -s /usr/bin/false -g spamd spamd
+passwd -N spamd
+
+# Change default permissions for spamd folder
+echo "* Update permissions for spamassassin folders"
+mkdir /var/spamassassin/.spamassassin
+mkdir /var/spool/spamd
+mkdir /var/run/spamd
+chown -R spamd:spamd /var/spamassassin
+chown spamd:spamd /var/spool/spamd
+chown spamd:spamd /var/run/spamd
+chown -R spamd:spamd /opt/local/etc/spamassassin
+
+# Run sa-update so spamd can know what to do
+/opt/local/bin/sa-update
+
+# Update spamd and clamd, should speed up provision
+echo "* Update spamd and clamd database"
+mkdir /var/log/clamav
+chown clamav /var/log/clamav
+/opt/local/bin/freshclam
+pyzor --homedir /opt/local/etc/spamassassin discover
+
+echo "* Copy mailer.conf to /etc/ because of exim usage"
+cp /opt/local/share/examples/exim/mailer.conf /etc/
+
+# Clean up
+echo "* Cleaning up."
+rm -rf /root/*
+
+# Prepare image for provisioning
+sm-prepare-image -y

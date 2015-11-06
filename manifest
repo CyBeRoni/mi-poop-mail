@@ -1,0 +1,9 @@
+name="poop-mail"
+organization="Poop.nl"
+brand="Instance"
+version="15.3.0"
+description="poop.nl mail server"
+homepage="http://www.poop.nl/"
+users="root"
+minram=1024
+metadata="dovecot:primary_hostname dovecot:qualify_domain system:ssh_disabled"

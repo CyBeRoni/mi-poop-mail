@@ -1,0 +1,7 @@
+# List packages to add to your image one per line.
+dovecot
+dovecot-pigeonhole
+exim
+spamassassin
+clamav
+pyzor

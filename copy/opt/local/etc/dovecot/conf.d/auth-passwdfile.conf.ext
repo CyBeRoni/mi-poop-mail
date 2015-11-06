@@ -1,0 +1,20 @@
+passdb {
+  driver = passwd-file
+  args = username_format=%n /srv/mail/passwd/%d
+}
+
+userdb {
+  driver = passwd-file
+  args = username_format=%n /srv/mail/passwd/%d
+
+  # Default fields that can be overridden by passwd-file
+  #default_fields = quota_rule=*:storage=1G
+
+  # Override fields from passwd-file
+}
+
+userdb {
+  args = uid=mail gid=mail home=/srv/mail/domains/%d/%n
+  driver = static
+}
+

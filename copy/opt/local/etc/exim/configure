@@ -1,0 +1,229 @@
+######################################################################
+#                  Runtime configuration file for Exim               #
+######################################################################
+######################################################################
+#                    MAIN CONFIGURATION SETTINGS                     #
+######################################################################
+
+# Things like hostname that might change on provision go here
+.include /opt/local/etc/exim/configure.local
+
+domainlist local_domains = @ : dsearch;/srv/mail/passwd : dsearch;/srv/mail/aliases
+domainlist relay_to_domains = lsearch;/srv/mail/exim/conf/relay_to_domains
+hostlist   relay_from_hosts = localhost : ::::1 : lsearch;/srv/mail/exim/conf/relay_from_hosts
+
+acl_smtp_mail = acl_check_mail
+acl_smtp_rcpt = acl_check_rcpt
+acl_smtp_data = acl_check_data
+
+av_scanner = clamd:/var/clamav/clamd.sock
+spamd_address = 127.0.0.1 783
+
+tls_advertise_hosts = *
+tls_certificate = ${if exists{/srv/mail/ssl/${tls_in_sni}/current}{/srv/mail/ssl/${tls_in_sni}/current/chained}{/srv/mail/ssl/${smtp_active_hostname}/current/chained}}
+tls_privatekey = ${if exists{/srv/mail/ssl/${tls_in_sni}/current}{/srv/mail/ssl/${tls_in_sni}/current/key}{/srv/mail/ssl/${smtp_active_hostname}/current/key}}
+
+# Require better ciphers for submission but relax for transport
+tls_require_ciphers = ${if =={$received_port}{25}\
+                           {DEFAULT}\
+                           {ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:ECDH+3DES:DH+3DES:RSA+AESGCM:RSA+AES:RSA+3DES:!aNULL:!eNULL:!MD5:!DSS}}
+# But disable sslv2 and sslv3 everywhere
+openssl_options = +no_sslv2 +no_sslv3
+
+daemon_smtp_ports = 25 : 587
+
+never_users = root
+host_lookup = *
+rfc1413_hosts =
+rfc1413_query_timeout = 5s
+
+ignore_bounce_errors_after = 2d
+timeout_frozen_after = 7d
+
+split_spool_directory = false
+spool_directory = /srv/mail/exim/spool
+
+
+######################################################################
+#                       ACL CONFIGURATION                            #
+#         Specifies access control lists for incoming SMTP mail      #
+######################################################################
+begin acl
+
+acl_check_mail:
+  accept  hosts = :
+
+  accept  senders       = wildlsearch;/srv/mail/exim/conf/senderverify_exceptions
+
+  require message       = Sender verification failed for $sender_address
+          verify        = sender/callout=60s,connect=15s
+
+  accept
+
+acl_check_rcpt:
+
+  # Accept if the source is local SMTP (i.e. not over TCP/IP). We do this by
+  # testing for an empty sending host field.
+
+  accept  hosts = :
+          control = dkim_disable_verify
+
+
+  deny    message       = Restricted characters in address
+          domains       = +local_domains
+          local_parts   = ^[.] : ^.*[@%!/|]
+
+  deny    message       = Restricted characters in address
+          domains       = !+local_domains
+          local_parts   = ^[./|] : ^.*[@%!] : ^.*/\\.\\./
+
+  accept  local_parts   = postmaster
+          domains       = +local_domains
+
+  accept  hosts         = +relay_from_hosts
+          control       = submission
+          control       = dkim_disable_verify
+
+  accept  authenticated = *
+          control       = submission/sender_retain
+          control       = dkim_disable_verify
+
+  require message = relay not permitted
+          domains = +local_domains : +relay_to_domains
+
+  require verify = recipient
+
+  accept
+
+acl_check_data:
+   warn    spam       = nobody:true
+           add_header = X-Spam-Score: $spam_score
+           add_header = X-Spam-Scanned: by ${smtp_active_hostname}
+           add_header = X-Spam-Report: $spam_report
+           condition  = ${if <{$message_size}{400k}{1}{0}}
+
+   warn    condition  = ${if >{$spam_score_int}{35}{1}{0}}
+           add_header = X-Spam-Status: yes
+           add_header = X-Spam-Flag: YES
+
+  # Deny if the message contains a virus. Before enabling this check, you
+  # must install a virus scanner and set the av_scanner option above.
+  #
+  deny    malware    = *
+          message    = This message contains a virus ($malware_name).
+
+  # Accept the message.
+  accept
+
+######################################################################
+#                      ROUTERS CONFIGURATION                         #
+#               Specifies how addresses are handled                  #
+######################################################################
+#     THE ORDER IN WHICH THE ROUTERS ARE DEFINED IS IMPORTANT!       #
+# An address is passed to each router in turn until it is accepted.  #
+######################################################################
+
+begin routers
+
+# Addresses on the internet
+dnslookup:
+  driver = dnslookup
+  domains = ! +local_domains
+  transport = remote_smtp
+  ignore_target_hosts = <; 0.0.0.0 ; 127.0.0.0/8 ; ::1
+  no_more
+
+# Aliases for ALL local domains
+system_aliases:
+  driver = redirect
+  allow_fail
+  allow_defer
+  data = ${lookup{$local_part}lsearch{/srv/mail/exim/conf/global_aliases}}
+  file_transport = address_file
+  pipe_transport = address_pipe
+
+# Aliases for domains that are only used to forward specific addresses
+addressforwardmail:
+  driver = redirect
+  domains = dsearch;/srv/mail/aliases
+  data = ${lookup{$local_part}wildlsearch{/srv/mail/aliases/$domain}}
+  file_transport = address_file
+  pipe_transport = address_pipe
+
+# Addresses delivered to dovecot
+dovecot_router:
+  driver = accept
+  domains = +local_domains
+  local_part_suffix = +*
+  local_part_suffix_optional
+  local_parts = ${if exists{/srv/mail/passwd/$domain}{lsearch;/srv/mail/passwd/$domain}}
+  transport = dovecot_transport
+  cannot_route_message = No account by that name.
+
+######################################################################
+#                      TRANSPORTS CONFIGURATION                      #
+######################################################################
+#                       ORDER DOES NOT MATTER                        #
+#     Only one appropriate transport is called for each delivery.    #
+######################################################################
+begin transports
+dovecot_transport:
+  driver = pipe
+  command = /opt/local/libexec/dovecot/deliver -d $local_part@$domain
+  message_prefix =
+  message_suffix =
+  delivery_date_add
+  envelope_to_add
+  return_path_add
+  log_output
+  user = mail
+  group = mail
+
+# This transport is used for delivering messages over SMTP connections.
+
+remote_smtp:
+  driver = smtp
+
+address_file:
+  driver = appendfile
+  delivery_date_add
+  envelope_to_add
+  return_path_add
+
+address_reply:
+  driver = autoreply
+
+######################################################################
+#                      RETRY CONFIGURATION                           #
+######################################################################
+
+begin retry
+*                      *           F,2h,15m; G,16h,1h,1.5; F,4d,6h
+
+
+######################################################################
+#                      REWRITE CONFIGURATION                         #
+######################################################################
+
+begin rewrite
+*@*     $1@${lookup{$2}lsearch{/srv/mail/exim/conf/rewrite_domains}{$value}fail} E
+
+begin authenticators
+
+# This authenticator calls doveadm because exim isn't compiled with
+# either saslauthd, dovecot or perl support. If that ever changes,
+# it is likely a good idea to change this too.
+plain:
+  driver = plaintext
+  public_name = PLAIN
+  server_condition = ${if exists {\
+        /srv/mail/passwd/${if eq{${extract{2}{@}{$auth2}{$value}}}{}{$qualify_domain}{${extract{2}{@}{$auth2}{$value}}}}\
+    }\
+    {\
+        ${run {/opt/local/bin/doveadm pw -p "$auth3" -t \
+        ${lookup{${extract{1}{@}{$auth2}{$value}}}lsearch{/srv/mail/passwd/${if eq{${extract{2}{@}{$auth2}{$value}}}{}{$qualify_domain}{${extract{2}{@}{$auth2}{$value}}}}}{"$value"}}\
+        }{1}{0}}\
+    }\
+    {0}\
+  }
+  server_set_id = $2
