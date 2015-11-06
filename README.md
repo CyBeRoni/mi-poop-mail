@@ -13,11 +13,11 @@ Metadata
 --------
 The following customer_metadata is used:
 
-dovecot:qualify_domain - Domain to use as the authentication realm if the client presents none (default: none)
-dovecot:primary_hostname - Hostname to use for TLS (default: system hostname)
-exim:qualify_domain: - Domain to append to addresses when only a local_part is given
-system:ssh_disabled - Whether or not to disable the ssh daemon (default: false)
-system:timezone - What timezone to use
+* dovecot:qualify_domain - Domain to use as the authentication realm if the client presents none (default: none)
+* dovecot:primary_hostname - Hostname to use for TLS (default: system hostname)
+* exim:qualify_domain: - Domain to append to addresses when only a local_part is given
+* system:ssh_disabled - Whether or not to disable the ssh daemon (default: false)
+* system:timezone - What timezone to use
 
 Services
 --------
@@ -66,34 +66,34 @@ respectively.
 
 Example JSON
 ------------
-{
-  "brand": "joyent",
-  "image_uuid": "",
-  "alias": "poopmail",
-  "hostname": "poopmail",
-  "dns_domain": "poop.nl",
-  "max_physical_memory": 1536,
-  "cpu_shares": 100,
-  "quota": 100,
-  "delegate_dataset": "true",
-  "nics": [
     {
-      "nic_tag": "admin",
-      "ips": ["1.2.3.4/24", "2001::1/64"],
-      "gateways": ["1.2.3.1"],
-      "primary": "true"
+      "brand": "joyent",
+      "image_uuid": "",
+      "alias": "poopmail",
+      "hostname": "poopmail",
+      "dns_domain": "poop.nl",
+      "max_physical_memory": 1536,
+      "cpu_shares": 100,
+      "quota": 100,
+      "delegate_dataset": "true",
+      "nics": [
+        {
+          "nic_tag": "admin",
+          "ips": ["1.2.3.4/24", "2001::1/64"],
+          "gateways": ["1.2.3.1"],
+          "primary": "true"
+        }
+      ],
+      "resolvers": [
+        "8.8.8.8",
+        "8.8.4.4"
+      ],
+      "customer_metadata": {
+        "system:ssh_disabled": "true",
+        "system:timezone": "Europe/Amsterdam",
+        "dovecot:qualify_domain": "cyberhq.nl",
+        "dovecot:primary_hostname": "mail.poop.nl"
+      }
     }
-  ],
-  "resolvers": [
-    "8.8.8.8",
-    "8.8.4.4"
-  ],
-  "customer_metadata": {
-    "system:ssh_disabled": "true",
-    "system:timezone": "Europe/Amsterdam",
-    "dovecot:qualify_domain": "cyberhq.nl",
-    "dovecot:primary_hostname": "mail.poop.nl"
-  }
-}
 
 
