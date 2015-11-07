@@ -33,10 +33,10 @@ Data
 This image requires a delegated dataset. It will be mounted at /srv/mail and will store user
 mailboxes. Also on this dataset is the user information:
 
-* /srv/mail/passwd/<domain>: users per domain, formatted as user:passwd where passwd can be had using 'doveadm pw'
-* /srv/mail/aliases/<domain>: aliases per domain, formatted as user:destination
+* /srv/mail/passwd/&lt;domain&gt;: users per domain, formatted as user:passwd where passwd can be had using 'doveadm pw'
+* /srv/mail/aliases/&lt;domain&gt;: aliases per domain, formatted as user:destination
 
-TLS certificates live in /srv/mail/ssl/<domain>/current, with the following files being used:
+TLS certificates live in /srv/mail/ssl/&lt;domain&gt;/current, with the following files being used:
 
 * ca: the certificate chain from the CA
 * cert: the certificate
