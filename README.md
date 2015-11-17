@@ -58,6 +58,7 @@ lists in /srv/mail/exim/conf:
 * relay_from_hosts: hosts to relay for without authentication
 * relay_to_domains: domains to be a secondary mx for, or otherwise relay to without authentication
 * senderverify_exceptions: e-mail addresses to accept (on 'MAIL FROM:') without doing a verification callout
+* dkim_required: domains (wildcard-matched) for which a valid DKIM signature is required to accept e-mail
 
 Dovecot allows local configuration in /srv/mail/dovecot/conf/local.conf. This can be used for example to add an
 imapc config to migrate mail from another server. There is a place to store global sieve scripts in 

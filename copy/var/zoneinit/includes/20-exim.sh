@@ -24,6 +24,7 @@ test -e global_aliases || echo '# Add aliases that should exist in EVERY domain 
 test -e address_domains || echo '# Add address aliases here, one per line' > address_domains
 #test -e wildcard_domains || echo '# Add domains here that should accept all local_parts here, one per line' > wildcard_domains
 test -e rewrite_domains || echo '# Add domains here that should be rewritten, followed by what they should be rewritten to, one per line (dom: replacement)' > rewrite_domains
+test -e dkim_required || echo '# Add domains here (wildcards ok) for which a valid DKIM signature MUST be present, or otherwise reject the message.' > dkim_required
 
 popd
 

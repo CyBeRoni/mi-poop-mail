@@ -2,3 +2,9 @@
 
 mi-poop-mail 15.3.0
 Initial.
+
+mi-poop-mail 15.3.1
+- Add perl DKIM package to spamassassin can do DKIM stuff.
+- Add headers reflecting DKIM verification status for sieving
+- Add way to configure list of domains that require valid DKIM for acceptance
+

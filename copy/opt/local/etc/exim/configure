@@ -15,6 +15,7 @@ hostlist   relay_from_hosts = localhost : ::::1 : lsearch;/srv/mail/exim/conf/re
 acl_smtp_mail = acl_check_mail
 acl_smtp_rcpt = acl_check_rcpt
 acl_smtp_data = acl_check_data
+acl_smtp_dkim = acl_check_dkim
 
 av_scanner = clamd:/var/clamav/clamd.sock
 spamd_address = 127.0.0.1 783
@@ -42,6 +43,8 @@ timeout_frozen_after = 7d
 
 split_spool_directory = false
 spool_directory = /srv/mail/exim/spool
+
+dkim_verify_signers = $dkim_signers : $sender_address_domain
 
 
 ######################################################################
@@ -114,6 +117,23 @@ acl_check_data:
 
   # Accept the message.
   accept
+
+acl_check_dkim:
+
+  deny    message        = DKIM Signature invalid or missing, but required for messages from $sender_address_domain
+          sender_domains = wildlsearch;/srv/mail/exim/conf/dkim_required
+          dkim_signers   = wildlsearch;/srv/mail/exim/conf/dkim_required
+          dkim_status    = none:invalid:fail
+
+
+  warn    dkim_status    = invalid:fail
+          add_header     = X-DKIM-failure-reason: $dkim_verify_reason
+
+  warn    condition	 = $dkim_key_testing
+          add_header	 = X-DKIM-testing: true
+
+  accept  add_header     = X-DKIM-status: $dkim_verify_status ($dkim_cur_signer)
+
 
 ######################################################################
 #                      ROUTERS CONFIGURATION                         #
