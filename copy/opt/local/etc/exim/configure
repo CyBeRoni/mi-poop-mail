@@ -203,6 +203,11 @@ dovecot_transport:
 
 remote_smtp:
   driver = smtp
+  dkim_domain = $sender_address_domain
+  dkim_selector = a
+  dkim_private_key = ${if exists{/srv/mail/dkim/${dkim_domain}.${dkim_selector}}{/srv/mail/dkim/${dkim_domain}.${dkim_selector}}{0}}
+  dkim_canon = relaxed
+  dkim_strict = 0
 
 address_file:
   driver = appendfile

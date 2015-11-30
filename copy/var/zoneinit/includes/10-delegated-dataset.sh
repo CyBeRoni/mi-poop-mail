@@ -16,6 +16,7 @@ test -d /srv/mail/passwd || mkdir /srv/mail/passwd
 test -d /srv/mail/exim || mkdir /srv/mail/exim
 test -d /srv/mail/exim/conf || mkdir /srv/mail/exim/conf
 test -d /srv/mail/exim/spool || mkdir /srv/mail/exim/spool
+test -d /srv/mail/dkim || mkdir /srv/mail/dkim
 
 chown -R mail:mail /srv/mail/domains
 chown -R mail:mail /srv/mail/exim/spool

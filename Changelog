@@ -8,3 +8,6 @@ mi-poop-mail 15.3.1
 - Add headers reflecting DKIM verification status for sieving
 - Add way to configure list of domains that require valid DKIM for acceptance
 
+mi-poop-mail 15.3.2
+- Add DKIM signing of outgoing messages with keys in
+/srv/mail/dkim/<domain>.<selector>
