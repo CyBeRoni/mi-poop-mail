@@ -11,3 +11,11 @@ mi-poop-mail 15.3.1
 mi-poop-mail 15.3.2
 - Add DKIM signing of outgoing messages with keys in
 /srv/mail/dkim/<domain>.<selector>
+
+mi-poop-mail 15.4.0
+- Build using base-64-lts 15.4.0
+
+mi-poop-mail 15.4.1
+- Don't fail zoneinit if timezone metadata is unset
+- Replace horrendous 'doveadm pw' expansion in exim with dovecot
+authentication which was enabled in pkgsrc 2015Q4.
