@@ -1,3 +1,5 @@
 #!/bin/bash
 
-mdata-get system:timezone && sm-set-timezone $(mdata-get system:timezone)
+if mdata-get system:timezone; then
+  sm-set-timezone $(mdata-get system:timezone)
+fi
