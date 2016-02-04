@@ -239,3 +239,4 @@ dovecot_plain:
   public_name = PLAIN
   server_socket = /var/run/dovecot/auth-client
   server_set_id = $auth1
+  server_advertise_condition = ${if !eq{$tls_cipher}{}{yes}{no}}

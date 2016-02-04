@@ -19,3 +19,4 @@ mi-poop-mail 15.4.1
 - Don't fail zoneinit if timezone metadata is unset
 - Replace horrendous 'doveadm pw' expansion in exim with dovecot
 authentication which was enabled in pkgsrc 2015Q4.
+- Require TLS for plain auth
