@@ -7,7 +7,7 @@ suitable mostly for low to medium-volume use, such as for personal use or a smal
 
 Please refer to https://github.com/joyent/mibe for use of this repo.
 
-Use with base-64 image from Joyent; tested with 15.3.0.
+Use with base-64 image from Joyent; tested with 15.4.0.
 
 Metadata
 --------
