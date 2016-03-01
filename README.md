@@ -59,11 +59,23 @@ lists in /srv/mail/exim/conf:
 * relay_to_domains: domains to be a secondary mx for, or otherwise relay to without authentication
 * senderverify_exceptions: e-mail addresses to accept (on 'MAIL FROM:') without doing a verification callout
 * dkim_required: domains (wildcard-matched) for which a valid DKIM signature is required to accept e-mail
+* backup:increments: How many daily backup increments before a new full backup is made (default: 28)
+* backup:retain: How long backups are retained, formatted for 'date' (example and default: '8 weeks')
+* backup:openssl_key: aes-128-cbc key to encrypt backup tarballs with before uploading (128-bit hex)
+* backup:openssl_iv: see above, but iv
+* backup:bucket: what bucket to use (example: gs://my-mail-backup)
+* boto:gs_oauth2_refresh_token: the "gs_oauth2_refresh_token" setting from boto.cfg to access google cloud storage
+* boto:default_project_id: the "default_project_id" setting from boto.cfg to specify what GCS project to use
 
 Dovecot allows local configuration in /srv/mail/dovecot/conf/local.conf. This can be used for example to add an
 imapc config to migrate mail from another server. There is a place to store global sieve scripts in 
 /srv/mail/dovecot/sieve/before and .../after, which will be executed before and after the user's own scripts
 respectively. 
+
+A script is run nightly to create incremental tar-based backups and upload them to Google Cloud Storage. This 
+should be adaptable to S3-based storage with minimal effort if necessary. It encrypts the tar files using 
+openssl aes-128-cbc before uploading them, and saves the most recent tar in /srv/mail/backups for immediate use. 
+If any of the required metadata keys (key, iv, bucket) are not set, the script will not run. 
 
 Example JSON
 ------------
