@@ -68,9 +68,7 @@ lists in /srv/mail/exim/conf:
 * boto:default_project_id: the "default_project_id" setting from boto.cfg to specify what GCS project to use
 
 Dovecot allows local configuration in /srv/mail/dovecot/conf/local.conf. This can be used for example to add an
-imapc config to migrate mail from another server. There is a place to store global sieve scripts in 
-/srv/mail/dovecot/sieve/before and .../after, which will be executed before and after the user's own scripts
-respectively. 
+imapc config to migrate mail from another server. 
 
 A script is run nightly to create incremental tar-based backups and upload them to Google Cloud Storage. This 
 should be adaptable to S3-based storage with minimal effort if necessary. It encrypts the tar files using 
