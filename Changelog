@@ -20,3 +20,10 @@ mi-poop-mail 15.4.1
 - Replace horrendous 'doveadm pw' expansion in exim with dovecot
 authentication which was enabled in pkgsrc 2015Q4.
 - Require TLS for plain auth
+
+mi-poop-mail 15.4.2
+- Add backup scripts + gsutil to enable encrypted backups to Google Cloud
+Storage, or S3 with slight modification
+- Fix cron jobs for exim and sa-update to actually work
+- Remove postfix which is apparently installed by default
+- Move dovecot's post-user sieve to inside the dataset instead of as user data
