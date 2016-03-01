@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # create cronjob for sa-update
-echo '0 5 * * * spamd /opt/local/bin/sa-update && kill -SIGHUP $(cat /var/spamassassin/spamd.pid)' > /etc/cron.d/sa-update
+echo '0 5 * * * /opt/local/bin/sa-update && kill -SIGHUP $(cat /var/spamassassin/spamd.pid)' >> /etc/cron.d/crontabs/spamd
 
 # Run pyzor discover
 sudo -u spamd pyzor --homedir /opt/local/etc/spamassassin ping || \

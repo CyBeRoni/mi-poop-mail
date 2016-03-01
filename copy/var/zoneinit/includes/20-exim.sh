@@ -31,7 +31,7 @@ popd
 svcadm enable svc:/pkgsrc/exim:default
 
 # Log watch cron job
-echo '0 4 * * * root /opt/local/bin/exim-cron.sh' > /etc/cron.d/exim-cron
+echo '0 4 * * * /opt/local/bin/exim-cron.sh' >> /etc/cron.d/crontabs/root
 
 # configure logadm
 logadm -w /var/log/exim/main -p 1d -C 10 -N -o mail -g mail -m 640 -c
