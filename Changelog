@@ -27,3 +27,6 @@ Storage, or S3 with slight modification
 - Fix cron jobs for exim and sa-update to actually work
 - Remove postfix which is apparently installed by default
 - Move dovecot's post-user sieve to inside the dataset instead of as user data
+
+mi-poop-mail 15.4.3
+- Fix Exim cron script that wasn't executable
