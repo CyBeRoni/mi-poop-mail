@@ -55,5 +55,12 @@ rm -rf gsutil-${gsutil_version}  gsutil-${gsutil_version}.tar.gz
 echo "* Cleaning up."
 rm -rf /root/*
 
+# gcc49/binutils was only necessary to install gsutil
+# postfix is useless since we want exim
+pkg_delete gcc49 binutils postfix
+/usr/sbin/svccfg delete svc:/pkgsrc/postfix
+rm -rf /opt/local/etc/postfix
+
+
 # Prepare image for provisioning
 sm-prepare-image -y
