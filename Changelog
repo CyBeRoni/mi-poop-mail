@@ -31,5 +31,6 @@ Storage, or S3 with slight modification
 mi-poop-mail 15.4.3
 - Fix Exim cron script that wasn't executable
 - Fix back-up script to actually be incremental
+- Don't chown -R the mail dataset (causes tar to think all files have changed)
 - Backup a tar archive per user instead of per domain
 - Tell tar to ignore device numbers because they change when reprovisioning
