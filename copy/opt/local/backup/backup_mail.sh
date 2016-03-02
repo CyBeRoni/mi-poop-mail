@@ -32,13 +32,14 @@ date=$(date +%Y-%m-%d)
 if [ ! -f "${cursnapfile}.snap" ]; then
         # There is no data, start at 0
         cursnap=0
-else 
-        cursnap=$(cat "${cursnapfile}.snap")
+        prevsnap=0
+else
+        prevsnap=$(cat "${cursnapfile}.snap")
         if [ "$cursnap" -ge "${INCREMENTS}" ]; then
                 cursnap=0
+                prevsnap=0
         else
-                # Copy the previous snapshot file to the current file, to be used later
-                cp "${snapshotdir}/snapshot.${cursnap}" "${snapshotdir}/snapshot.$((++cursnap))"
+                cursnap=$((prevsnap+1))
         fi
 fi
 
@@ -48,25 +49,34 @@ if [ "${cursnap}" -eq "0" ]; then
         echo "${date}" > "${cursnapfile}.date"
 fi
 
-echo "${cursnap}" > "${cursnapfile}.snap"
-
 # Back the fuck up.
 cd "${MAIL_DIR}"
 for domain in domains/*; do
-	d=$(basename "${domain}")
-        ${TAR} --listed-incremental="${snapshotdir}/snapshot.${cursnap}" -cvz "domains/${d}" "passwd/${d}" | openssl aes-128-cbc -K "${OPENSSL_KEY}" -iv "${OPENSSL_IV}" -e -out "${BACKUP_DIR}/${d}.tgz.aes"
+        for user in ${domain}/*; do
+                d=$(basename "${domain}")
+                u=$(basename "${user}")
+                if [ "${cursnap}" -gt "0" ]; then
+                        cp -a "${snapshotdir}/snapshot.${d}-${u}.${prevsnap}" "${snapshotdir}/snapshot.${d}-${u}.${cursnap}"
+                fi
 
-        # Send to Google
-        prev_date=$(cat ${cursnapfile}.date)
-        ${GSUTIL} cp ${BACKUP_DIR}/${d}.tgz.aes ${GS_BUCKET}/${prev_date}/${d}.${cursnap}.tgz.aes
+                ${TAR} --listed-incremental="${snapshotdir}/snapshot.${d}-${u}.${cursnap}" -cvz "domains/${d}/${u}" | openssl aes-128-cbc -K "${OPENSSL_KEY}" -iv "${OPENSSL_IV}" -e -out "${BACKUP_DIR}/${d}-${u}.tgz.aes"
+
+                # Send to Google
+                prev_date=$(cat ${cursnapfile}.date)
+                ${GSUTIL} cp ${BACKUP_DIR}/${d}-${u}.tgz.aes ${GS_BUCKET}/${prev_date}/${d}/${u}.${cursnap}.tgz.aes
+        done
 done
 
+# Save state.
+echo "${cursnap}" > "${cursnapfile}.snap"
+
 # Also back up data like users/passwds and whatnot.
-${TAR} cvz aliases dkim ssl dovecot exim/conf | openssl aes-128-cbc -K "${OPENSSL_KEY}" -iv "${OPENSSL_IV}" -e -out "${BACKUP_DIR}/data.tgz.aes"
+${TAR} cvz passwd aliases dkim ssl dovecot exim/conf | openssl aes-128-cbc -K "${OPENSSL_KEY}" -iv "${OPENSSL_IV}" -e -out "${BACKUP_DIR}/data.tgz.aes"
 ${GSUTIL} cp ${BACKUP_DIR}/data.tgz.aes ${GS_BUCKET}/${prev_date}/${date}_data.tgz.aes
 
+
 # Clean old remote backups older than $RETAIN
-${GSUTIL} ls ${GS_BUCKET} | while read line; do 
+${GSUTIL} ls ${GS_BUCKET} | while read line; do
         date=$(echo "$line" | cut -d/ -f4)
         stamp=$(date -d "$date" +%s);
         comp=$(date -d "now - ${RETAIN_FULL}" +%s);
@@ -74,3 +84,4 @@ ${GSUTIL} ls ${GS_BUCKET} | while read line; do
                 ${GSUTIL} rm -r "$line"
         fi;
 done
+
