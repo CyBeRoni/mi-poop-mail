@@ -37,12 +37,10 @@ date=$(date +%Y-%m-%d)
 if [ ! -f "${cursnapfile}.snap" ]; then
         # There is no data, start at 0
         cursnap=0
-        prevsnap=0
 else
         prevsnap=$(cat "${cursnapfile}.snap")
         if [ "$cursnap" -ge "${INCREMENTS}" ]; then
                 cursnap=0
-                prevsnap=0
         else
                 cursnap=$((prevsnap+1))
         fi
