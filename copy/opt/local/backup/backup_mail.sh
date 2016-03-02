@@ -10,9 +10,14 @@ GS_BUCKET="$(mdata-get backup:bucket)"
 
 # Override these values in the file sourced below if needed
 TAR=/opt/local/bin/gtar
+# Reprovisioning causes device numbers of delegated datasets to change, so we need
+# to tell tar to ignore that.
+TAR_OPTIONS="--no-check-device"
 GSUTIL=/opt/local/bin/gsutil
 BACKUP_DIR=/srv/mail/backup
 MAIL_DIR=/srv/mail
+
+export TAR_OPTIONS
 
 [ -f "${BACKUP_DIR}/settings.sh" ] && source ${BACKUP_DIR}/settings.sh
 
@@ -55,11 +60,8 @@ for domain in domains/*; do
         for user in ${domain}/*; do
                 d=$(basename "${domain}")
                 u=$(basename "${user}")
-                if [ "${cursnap}" -gt "0" ]; then
-                        cp -a "${snapshotdir}/snapshot.${d}-${u}.${prevsnap}" "${snapshotdir}/snapshot.${d}-${u}.${cursnap}"
-                fi
 
-                ${TAR} --listed-incremental="${snapshotdir}/snapshot.${d}-${u}.${cursnap}" -cvz "domains/${d}/${u}" | openssl aes-128-cbc -K "${OPENSSL_KEY}" -iv "${OPENSSL_IV}" -e -out "${BACKUP_DIR}/${d}-${u}.tgz.aes"
+                ${TAR} --listed-incremental="${snapshotdir}/snapshot.${d}-${u}.snar" -cvz "domains/${d}/${u}" | openssl aes-128-cbc -K "${OPENSSL_KEY}" -iv "${OPENSSL_IV}" -e -out "${BACKUP_DIR}/${d}-${u}.tgz.aes"
 
                 # Send to Google
                 prev_date=$(cat ${cursnapfile}.date)
