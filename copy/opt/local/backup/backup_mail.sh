@@ -4,7 +4,6 @@ INCREMENTS="$(mdata-get backup:increments || echo 28)"
 RETAIN_FULL="$(mdata-get backup:retain || echo '8 weeks')"
 
 OPENSSL_KEY="$(mdata-get backup:openssl_key)"
-OPENSSL_IV="$(mdata-get backup:openssl_iv)"
 
 GS_BUCKET="$(mdata-get backup:bucket)"
 
@@ -23,7 +22,6 @@ export TAR_OPTIONS
 
 # Exit if the required info isn't available
 [ -z "$OPENSSL_KEY" ] && exit 1
-[ -z "$OPENSSL_IV" ] && exit 1
 [ -z "$GS_BUCKET" ] && exit 1
 
 # Create backup dest dir if nonexistent
@@ -39,7 +37,7 @@ if [ ! -f "${cursnapfile}.snap" ]; then
         cursnap=0
 else
         prevsnap=$(cat "${cursnapfile}.snap")
-        if [ "$cursnap" -ge "${INCREMENTS}" ]; then
+        if [ "$prevsnap" -ge "${INCREMENTS}" ]; then
                 cursnap=0
         else
                 cursnap=$((prevsnap+1))
@@ -59,7 +57,7 @@ for domain in domains/*; do
                 d=$(basename "${domain}")
                 u=$(basename "${user}")
 
-                ${TAR} --listed-incremental="${snapshotdir}/snapshot.${d}-${u}.snar" -cvz "domains/${d}/${u}" | openssl aes-128-cbc -K "${OPENSSL_KEY}" -iv "${OPENSSL_IV}" -e -out "${BACKUP_DIR}/${d}-${u}.tgz.aes"
+                ${TAR} --listed-incremental="${snapshotdir}/snapshot.${d}-${u}.snar" -cvz "domains/${d}/${u}" | openssl aes-128-cbc -k "${OPENSSL_KEY}" -e -out "${BACKUP_DIR}/${d}-${u}.tgz.aes"
 
                 # Send to Google
                 prev_date=$(cat ${cursnapfile}.date)
@@ -71,7 +69,7 @@ done
 echo "${cursnap}" > "${cursnapfile}.snap"
 
 # Also back up data like users/passwds and whatnot.
-${TAR} cvz passwd aliases dkim ssl dovecot exim/conf | openssl aes-128-cbc -K "${OPENSSL_KEY}" -iv "${OPENSSL_IV}" -e -out "${BACKUP_DIR}/data.tgz.aes"
+${TAR} cvz passwd aliases dkim ssl dovecot exim/conf | openssl aes-128-cbc -k "${OPENSSL_KEY}" -e -out "${BACKUP_DIR}/data.tgz.aes"
 ${GSUTIL} cp ${BACKUP_DIR}/data.tgz.aes ${GS_BUCKET}/${prev_date}/${date}_data.tgz.aes
 
 

@@ -34,3 +34,6 @@ mi-poop-mail 15.4.3
 - Don't chown -R the mail dataset (causes tar to think all files have changed)
 - Backup a tar archive per user instead of per domain
 - Tell tar to ignore device numbers because they change when reprovisioning
+
+mi-poop-mail 15.4.4
+- Don't use a static aes iv when encrypting backups because that's not a good idea
