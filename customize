@@ -42,7 +42,7 @@ echo "* Copy mailer.conf to /etc/ because of exim usage"
 cp /opt/local/share/examples/exim/mailer.conf /etc/
 
 # Install gsutil for backing up to google cloud storage
-gsutil_version=4.17
+gsutil_version=4.19
 curl -LO https://pypi.python.org/packages/source/g/gsutil/gsutil-${gsutil_version}.tar.gz && tar xvzf gsutil-${gsutil_version}.tar.gz
 cd gsutil-${gsutil_version}
 export PATH=${PATH}:/opt/local/gcc49/bin

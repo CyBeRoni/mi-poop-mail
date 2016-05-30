@@ -16,6 +16,8 @@ acl_smtp_mail = acl_check_mail
 acl_smtp_rcpt = acl_check_rcpt
 acl_smtp_data = acl_check_data
 acl_smtp_dkim = acl_check_dkim
+acl_smtp_connect = acl_delay_banner
+
 
 av_scanner = clamd:/var/clamav/clamd.sock
 spamd_address = 127.0.0.1 783
@@ -45,6 +47,9 @@ split_spool_directory = false
 spool_directory = /srv/mail/exim/spool
 
 dkim_verify_signers = $dkim_signers : $sender_address_domain
+
+add_environment = <; PATH=/bin:/usr/bin:/opt/local/bin
+keep_environment =
 
 
 ######################################################################
@@ -96,7 +101,57 @@ acl_check_rcpt:
 
   require verify = recipient
 
+
+# Accept e-mail from secondaries, since SPF checking doesn't do much there.
+  accept  set acl_m0    = ${lookup dnsdb{>: mxh=$domain}{$value}}
+          condition     = ${if or{{inlist{$sender_host_name}{$acl_m0}}{inlist{$sender_helo_name}{$acl_m0}}}{yes}{no}}
+
+# Check SPF
+  warn
+    add_header = ${listextract {4}{<\n ${run{/opt/local/bin/spfquery --scope ${if def:sender_address{mfrom}{helo}} --ip \"$sender_host_address\" --identity \"${if def:sender_address{$sender_address}{$sender_helo_name}}\" --hostname \"${primary_hostname}\"}{$value}{$value}}}}
+    condition  = ${if <={$runrc}{6}{yes}{no}}
+    log_message = SPF check returned ${listextract{$runrc}{fail:softfail:neutral:permerror:temperror:none}{$value}{pass}}.
+
+  #accept  hosts                = lsearch;/srv/mail/exim/conf/spf_exceptions
+
+  deny
+    message = [SPF] $sender_host_address is not allowed to send mail from \
+                ${if def:sender_address_domain {$sender_address_domain}{$sender_helo_name}}.  \
+                Please see http://www.openspf.org/why.html?sender=$sender_address&ip=$sender_host_address&receiver=$primary_hostname
+    condition = ${if eq {$runrc}{1}{yes}{no}}
+
+  defer
+    message = Temporary DNS error while checking SPF record.  Try again later.
+    condition = ${if eq {$runrc}{5}{yes}{no}}
+ 
+  # Some problem locally; pretend nothing's wrong.
+  warn
+    log_message = Unexpected error in SPF check.
+    condition = ${if >{$runrc}{6}{yes}{no}}
+
   accept
+
+acl_delay_banner:
+
+  accept  hosts          = +relay_from_hosts :
+
+  warn    set  acl_c_acl_delay = 0s
+
+  # Delay connections on port 25 for 10 seconds by default
+  warn    condition      = ${if eq {$interface_port} {25} {yes} {no}}
+          set  acl_c_acl_delay = 30s
+
+  # Let connections with correct reverse DNS wait a little shorter
+  warn    verify         = reverse_host_lookup
+          set  acl_c_acl_delay = 1s
+
+  # Delay 3 minutes for likely abusive hosts
+  warn    dnslists       = zen.spamhaus.org
+          dnslists       = hostkarma.junkemailfilter.com=127.0.0.2,127.0.0.4
+          set  acl_c_acl_delay = 180s
+
+  warn    log_message    = banner delay ${acl_c_acl_delay} port ${interface_port}
+  accept  delay          = $acl_c_acl_delay
 
 acl_check_data:
    warn    spam       = nobody:true
