@@ -17,6 +17,7 @@ acl_smtp_rcpt = acl_check_rcpt
 acl_smtp_data = acl_check_data
 acl_smtp_dkim = acl_check_dkim
 acl_smtp_connect = acl_delay_banner
+acl_smtp_mime = acl_check_mime
 
 
 av_scanner = clamd:/var/clamav/clamd.sock
@@ -188,6 +189,17 @@ acl_check_dkim:
           add_header	 = X-DKIM-testing: true
 
   accept  add_header     = X-DKIM-status: $dkim_verify_status ($dkim_cur_signer)
+
+acl_check_mime:
+  accept authenticated = *
+
+  deny   message       = Blacklisted file extension detected
+         condition     = ${if match \
+                          {${lc:$mime_filename}} \
+                           {\N(\.exe|\.pif|\.bat|\.scr|\.lnk|\.com|\.js|\.docm)$\N} \
+                          {1}{0}}
+
+  accept
 
 
 ######################################################################

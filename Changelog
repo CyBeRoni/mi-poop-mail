@@ -42,3 +42,6 @@ mi-poop-mail 16.1.0
 - Let exim check SPF records, try to be clever about not checking for secondary MXes.
 - Delay the exim greeting banner to make spam bots think they're tarpitted.
 - Update to gsutil 4.19
+
+mi-poop-mail 16.1.1
+- Block certain file extensions like executables and docm
