@@ -46,7 +46,7 @@ fi
 
 # If we're at 0, remove the old snapshot files and save the date
 if [ "${cursnap}" -eq "0" ]; then
-        rm "${snapshotdir}/snapshot.*"
+        rm "${snapshotdir}"/snapshot.*
         echo "${date}" > "${cursnapfile}.date"
 fi
 
