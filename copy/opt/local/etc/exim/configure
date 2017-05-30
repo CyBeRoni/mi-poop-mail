@@ -24,8 +24,9 @@ av_scanner = clamd:/var/clamav/clamd.sock
 spamd_address = 127.0.0.1 783
 
 tls_advertise_hosts = *
-tls_certificate = ${if exists{/srv/mail/ssl/${tls_in_sni}/current}{/srv/mail/ssl/${tls_in_sni}/current/chained}{/srv/mail/ssl/${smtp_active_hostname}/current/chained}}
-tls_privatekey = ${if exists{/srv/mail/ssl/${tls_in_sni}/current}{/srv/mail/ssl/${tls_in_sni}/current/key}{/srv/mail/ssl/${smtp_active_hostname}/current/key}}
+tls_certificate = ${if exists{/var/lib/acme/live/${tls_in_sni}/fullchain}{/var/lib/acme/live/${tls_in_sni}/fullchain}{/var/lib/acme/live/${smtp_active_hostname}/fullchain}}
+tls_privatekey = ${if exists{/var/lib/acme/live/${tls_in_sni}/privkey}{/var/lib/acme/live/${tls_in_sni}/privkey}{/var/lib/acme/live/${smtp_active_hostname}/privkey}}
+
 
 # Require better ciphers for submission but relax for transport
 tls_require_ciphers = ${if =={$received_port}{25}\

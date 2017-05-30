@@ -45,3 +45,10 @@ mi-poop-mail 16.1.0
 
 mi-poop-mail 16.1.1
 - Block certain file extensions like executables and docm
+
+mi-poop-mail 17.1.0
+- Use Let's Encrypt for TLS certs
+- Fix backup script only ever making incremental backups after the initial
+full backup
+- Upgrade gsutil
+- Build with minimal as a base as of now.

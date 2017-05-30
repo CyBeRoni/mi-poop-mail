@@ -15,8 +15,8 @@ if [ "x${qualify_domain}" != "x" ]; then
 fi
 
 cat <<EOF > /opt/local/etc/dovecot/conf.d/10-ssl-certificates.conf
-ssl_cert = </srv/mail/ssl/${primary_hostname}/current/chained
-ssl_key = </srv/mail/ssl/${primary_hostname}/current/key
+ssl_cert = </var/lib/acme/live/${primary_hostname}/fullchain
+ssl_key = </var/lib/acme/live/${primary_hostname}/privkey
 EOF
 
 # Create config and sieve dirs, ignoring if they already exist

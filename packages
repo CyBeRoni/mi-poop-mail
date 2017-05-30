@@ -8,3 +8,5 @@ pyzor
 p5-Mail-SPF
 p5-Mail-DKIM
 gcc49
+sudo
+rsyslog

@@ -20,4 +20,3 @@ test -d /srv/mail/dkim || mkdir /srv/mail/dkim
 
 chown -R mail:mail /srv/mail/exim/spool
 
-

@@ -1,0 +1,6 @@
+#!/bin/sh
+
+ACME_HOOKS_DIR=/opt/local/acme/hooks
+export ACME_HOOKS_DIR
+
+exec /opt/local/bin/acmetool.real "$@"

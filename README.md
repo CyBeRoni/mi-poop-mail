@@ -34,6 +34,7 @@ When running, the following services are exposed to the network on both IPv4 and
 * 143, 993: IMAP (tls required)
 * 4190: ManageSieve (tls required)
 * 22: SSH (if not disabled)
+* 80: web (briefly, when requesting Let's Encrypt certificates only.)
 
 Data
 ----
@@ -43,19 +44,9 @@ mailboxes. Also on this dataset is the user information:
 * /srv/mail/passwd/&lt;domain&gt;: users per domain, formatted as user:passwd where passwd can be had using 'doveadm pw'
 * /srv/mail/aliases/&lt;domain&gt;: aliases per domain, formatted as user:destination
 
-TLS certificates live in /srv/mail/ssl/&lt;domain&gt;/current, with the following files being used:
-
-* ca: the certificate chain from the CA
-* cert: the certificate
-* key: the private key
-* chained: the certificate + the chain (cat cert ca > chained)
-* req: the certificate request
-
-'current' can be a symlink so upon rollover you can prepare a new directory and switch the symlink to activate it.
-
-Multiple certificate directories can exist and exim will pick between them based on the client's SNI info if available.
-For clients that don't send SNI info, the server hostname is used. Dovecot currently only uses the cert given by the
-dovecot:primary_hostname setting.
+TLS certificates from Let's Encrypt are used. They are stored on the delegated dataset in /srv/mail/ssl/acme. Acmetool
+is used to request them. By default the dovecot primary_hostname and system hostname are requested in a single cert. 
+To request more certificates, use `acmetool want`.
 
 Exim keeps its spool in /srv/mail/exim/spool so it is preserved upon reprovision. Also there are some configuration
 lists in /srv/mail/exim/conf:
