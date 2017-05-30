@@ -8,7 +8,7 @@ OPENSSL_KEY="$(mdata-get backup:openssl_key)"
 GS_BUCKET="$(mdata-get backup:bucket)"
 
 # Override these values in the file sourced below if needed
-TAR=/opt/local/bin/gtar
+TAR=/usr/bin/gtar
 # Reprovisioning causes device numbers of delegated datasets to change, so we need
 # to tell tar to ignore that.
 TAR_OPTIONS="--no-check-device"
@@ -73,13 +73,14 @@ ${TAR} cvz passwd aliases dkim ssl dovecot exim/conf | openssl aes-128-cbc -k "$
 ${GSUTIL} cp ${BACKUP_DIR}/data.tgz.aes ${GS_BUCKET}/${prev_date}/${date}_data.tgz.aes
 
 
+# From this point on, error if anything goes wrong so we don't accidentally nuke everything
+set -e
+
 # Clean old remote backups older than $RETAIN
 ${GSUTIL} ls ${GS_BUCKET} | while read line; do
         date=$(echo "$line" | cut -d/ -f4)
-        stamp=$(date -d "$date" +%s);
-        comp=$(date -d "now - ${RETAIN_FULL}" +%s);
-        if [ $stamp -le $comp ]; then
+        diff=$(datediff $date today)
+        if [ "$diff" -gt "$RETAIN_FULL" ]; then
                 ${GSUTIL} rm -r "$line"
         fi;
 done
-

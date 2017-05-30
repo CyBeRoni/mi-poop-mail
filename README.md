@@ -19,7 +19,7 @@ The following customer_metadata is used:
 * system:ssh_disabled - Whether or not to disable the ssh daemon (default: false)
 * system:timezone - What timezone to use
 * backup:increments: How many daily backup increments before a new full backup is made (default: 28)
-* backup:retain: How long backups are retained, formatted for 'date' (example and default: '8 weeks')
+* backup:retain: How long backups are retained, in weeks (default: '8)
 * backup:openssl_key: aes-128-cbc key to encrypt backup tarballs with before uploading (128-bit hex)
 * backup:openssl_iv: see above, but iv
 * backup:bucket: what bucket to use (example: gs://my-mail-backup)

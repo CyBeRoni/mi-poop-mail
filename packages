@@ -10,3 +10,4 @@ p5-Mail-DKIM
 gcc49
 sudo
 rsyslog
+dateutils

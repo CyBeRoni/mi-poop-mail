@@ -5,6 +5,8 @@ quickstart=0
 test -f /srv/mail/ssl/acme/conf/target || quickstart=1
 
 test -d /srv/mail/ssl/acme/conf || mkdir -p /srv/mail/ssl/acme/conf
+test -d /var/lib || mkdir /var/lib
+
 ln -s /srv/mail/ssl/acme /var/lib
 
 cat > /srv/mail/ssl/acme/conf/responses <<EOF
