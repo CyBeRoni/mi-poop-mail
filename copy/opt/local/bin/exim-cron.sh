@@ -82,6 +82,6 @@ fi
 if [ -x /opt/local/sbin/exim_tidydb ]; then
   cd $SPOOLDIR/db || exit 1
   find $SPOOLDIR/db -maxdepth 1 -name '*.lockfile' -or -name 'log.*' \
-    -or -type f -printf '%f\0' | \
-    sudo -u mail xargs -0r -n 1 /opt/local/sbin/exim_tidydb $SPOOLDIR > /dev/null
+    -or -type f -print0 | \
+    sudo -u mail xargs -0 -n 1 /opt/local/sbin/exim_tidydb $SPOOLDIR > /dev/null
 fi
