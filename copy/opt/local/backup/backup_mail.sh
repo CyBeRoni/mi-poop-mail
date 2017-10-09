@@ -1,7 +1,7 @@
 #!/bin/sh
 
 INCREMENTS="$(mdata-get backup:increments || echo 28)"
-RETAIN_FULL="$(mdata-get backup:retain || echo '8 weeks')"
+RETAIN_FULL="$(mdata-get backup:retain || echo '56')"
 
 OPENSSL_KEY="$(mdata-get backup:openssl_key)"
 
