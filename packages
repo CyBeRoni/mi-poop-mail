@@ -4,10 +4,14 @@ dovecot-pigeonhole
 exim
 spamassassin
 clamav
-pyzor
 p5-Mail-SPF
 p5-Mail-DKIM
-gcc49
+gcc13
 sudo
 rsyslog
 dateutils
+py312-pip
+rust
+pkg-config
+dehydrated
+hexd

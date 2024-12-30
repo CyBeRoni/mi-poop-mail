@@ -19,6 +19,8 @@ ssl_cert = </var/lib/acme/live/${primary_hostname}/fullchain
 ssl_key = </var/lib/acme/live/${primary_hostname}/privkey
 EOF
 
+curl https://raw.githubusercontent.com/internetstandards/dhe_groups/master/ffdhe3072.pem > /opt/local/etc/dovecot/dhparams.pem
+
 # Create config and sieve dirs, ignoring if they already exist
 mkdir -p /srv/mail/dovecot/conf || true
 mkdir -p /srv/mail/dovecot/sieve/before || true
@@ -41,3 +43,4 @@ chown -R dovecot:mail /var/log/dovecot
 logadm -w /var/log/dovecot/main -p 1d -C 10 -N -o dovecot -g mail -m 660 -a "/opt/local/bin/doveadm log reopen"
 logadm -w /var/log/dovecot/info -p 1d -C 10 -N -o dovecot -g mail -m 660 -a "/opt/local/bin/doveadm log reopen"
 logadm -w /var/log/dovecot/debug -p 1d -C 10 -N -o dovecot -g mail -m 660 -a "/opt/local/bin/doveadm log reopen"
+

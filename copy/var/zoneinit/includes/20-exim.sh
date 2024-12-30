@@ -25,7 +25,9 @@ test -e address_domains || echo '# Add address aliases here, one per line' > add
 #test -e wildcard_domains || echo '# Add domains here that should accept all local_parts here, one per line' > wildcard_domains
 test -e rewrite_domains || echo '# Add domains here that should be rewritten, followed by what they should be rewritten to, one per line (dom: replacement)' > rewrite_domains
 test -e dkim_required || echo '# Add domains here (wildcards ok) for which a valid DKIM signature MUST be present, or otherwise reject the message.' > dkim_required
-
+test -e deny_senders || echo '# Add hard-blocked addresses (wildcards ok) here' > deny_senders
+test -e spf_exceptions || echo '# Add sending servers (wildcards ok) that can fail SPF here' > spf_exceptions
+test -e secondary_mx || echo '# Add servers that are used for secondary MX here' > secondary_mx
 popd
 
 svcadm enable svc:/pkgsrc/exim:default
