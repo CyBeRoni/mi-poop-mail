@@ -4,14 +4,14 @@ case "$1" in
     "deploy_challenge")
         case "$CHALLENGETYPE" in
             "dns-01")
-                /opt/local/etc/dehydrated/pdns_api.sh "$@"
+                /opt/local/etc/dehydrated/cf_api.sh "$@"
              ;;
              esac
         ;;
     "clean_challenge")
         case "$CHALLENGETYPE" in
             "dns-01")
-                /opt/local/etc/dehydrated/pdns_api.sh "$@"
+                /opt/local/etc/dehydrated/cf_api.sh "$@"
              ;;
              esac
         ;;

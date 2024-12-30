@@ -15,3 +15,4 @@ rust
 pkg-config
 dehydrated
 hexd
+jq
