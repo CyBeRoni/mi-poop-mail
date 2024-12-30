@@ -51,10 +51,6 @@ cp /opt/local/share/examples/exim/mailer.conf /etc/
 mkdir /root/tmp
 TMPDIR=/root/tmp pip install gsutil
 
-# Clean up
-echo "* Cleaning up."
-rm -rf /root/*
-
 # These were only necessary to install gsutil
 pkg_delete gcc13 binutils rust
 

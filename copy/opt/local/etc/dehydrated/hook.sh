@@ -17,10 +17,10 @@ case "$1" in
         ;;
     "deploy_cert")
     # Given arguments: deploy_cert domain path/to/privkey.pem path/to/cert.pem path/to/fullchain.pem
-        cat <<- EOF
-            ssl_cert = <$5
-            ssl_key = <$3
-        EOF > /opt/local/etc/dovecot/ssl-certificates.conf
+        cat << EOF > /opt/local/etc/dovecot/ssl-certificates.conf
+ssl_cert = <$5
+ssl_key = <$3
+EOF
 
         mkdir -p /opt/local/etc/exim/ssl/$2
         cp $3 $5 /opt/local/etc/exim/ssl/$2
