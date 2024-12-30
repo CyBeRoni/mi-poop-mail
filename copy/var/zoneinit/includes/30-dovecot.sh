@@ -14,11 +14,6 @@ if [ "x${qualify_domain}" != "x" ]; then
   echo "auth_default_realm = ${qualify_domain}" > /opt/local/etc/dovecot/conf.d/10-auth-qualify-domain.conf
 fi
 
-cat <<EOF > /opt/local/etc/dovecot/conf.d/10-ssl-certificates.conf
-ssl_cert = </var/lib/acme/live/${primary_hostname}/fullchain
-ssl_key = </var/lib/acme/live/${primary_hostname}/privkey
-EOF
-
 curl https://raw.githubusercontent.com/internetstandards/dhe_groups/master/ffdhe3072.pem > /opt/local/etc/dovecot/dhparams.pem
 
 # Create config and sieve dirs, ignoring if they already exist

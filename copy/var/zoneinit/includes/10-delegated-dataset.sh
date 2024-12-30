@@ -14,6 +14,7 @@ test -d /srv/mail/domains || mkdir /srv/mail/domains
 test -d /srv/mail/ssl || mkdir /srv/mail/ssl
 test -d /srv/mail/ssl/dehydrated || mkdir /srv/mail/ssl/dehydrated
 test -d /srv/mail/ssl/dehydrated/config.d || mkdir /srv/mail/ssl/dehydrated/config.d
+test -d /srv/mail/ssl/dehydrated/wellknown || mkdir /srv/mail/ssl/dehydrated/wellknown
 test -d /srv/mail/passwd || mkdir /srv/mail/passwd
 test -d /srv/mail/exim || mkdir /srv/mail/exim
 test -d /srv/mail/exim/conf || mkdir /srv/mail/exim/conf
