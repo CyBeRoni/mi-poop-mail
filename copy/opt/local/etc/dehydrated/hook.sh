@@ -15,26 +15,23 @@ case "$1" in
              ;;
              esac
         ;;
-    "deploy_cert")
+    "deploy_cert" | "unchanged_cert" )
     # Given arguments: deploy_cert domain path/to/privkey.pem path/to/cert.pem path/to/fullchain.pem
+    if [ "x$2" = "x$(mdata-get dovecot:primary_hostname)" ]; then
         cat << EOF > /opt/local/etc/dovecot/ssl-certificates.conf
 ssl_cert = <$5
 ssl_key = <$3
 EOF
+    fi
 
         mkdir -p /opt/local/etc/exim/ssl/$2
         cp $3 $5 /opt/local/etc/exim/ssl/$2
-
-        svcadm disable exim
-        svcadm disable dovecot
-        svcadm enable exim
-        svcadm enable dovecot
-        ;;
-    "unchanged_cert")
         ;;
     "startup_hook")
         ;;
     "exit_hook")
+        svcadm restart exim
+        svcadm restart dovecot
         ;;
     *)
     exit 0
