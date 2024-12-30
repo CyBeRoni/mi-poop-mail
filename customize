@@ -7,6 +7,9 @@ PATH=/opt/local/gnu/bin:/opt/local/bin:/opt/local/sbin:/usr/bin:/usr/sbin
 # Exit if any commands fail
 set -o errexit
 
+# Install packages
+grep -v '^#' packages | xargs pkgin -y install
+
 # Add users to groups
 echo "* Add dovecot and clamav users to mail group"
 usermod -G mail dovecot
@@ -36,35 +39,26 @@ echo "* Update spamd and clamd database"
 mkdir /var/log/clamav
 chown clamav /var/log/clamav
 /opt/local/bin/freshclam
-pyzor --homedir /opt/local/etc/spamassassin discover
+
+# Install pyzor; the version in pkgsrc is old and doesn't work with python3
+pip install pyzor
 
 echo "* Copy mailer.conf to /etc/ because of exim usage"
 cp /opt/local/share/examples/exim/mailer.conf /etc/
 
 # Install gsutil for backing up to google cloud storage
-gsutil_version=4.26
-# Python apparenty can't be trusted to not fuck up their URLs so use Debian's redirector service. Thanks Debian.
-curl -LO http://pypi.debian.net/gsutil/gsutil-${gsutil_version}.tar.gz && tar xvzf gsutil-${gsutil_version}.tar.gz
-cd gsutil-${gsutil_version}
-export PATH=${PATH}:/opt/local/gcc49/bin
-python setup.py install
-cd ..
-rm -rf gsutil-${gsutil_version}  gsutil-${gsutil_version}.tar.gz
+# /tmp may be too small so create a temporary tmp dir
+mkdir /root/tmp
+TMPDIR=/root/tmp pip install gsutil
 
-# Get acmetool for Let's Encrypt certificates
-acmetool_version=v0.0.59
-curl -LO https://github.com/hlandau/acme/releases/download/${acmetool_version}/acmetool-${acmetool_version}-solaris_amd64.tar.gz && tar xvzf acmetool-${acmetool_version}-solaris_amd64.tar.gz
-cd acmetool-${acmetool_version}-solaris_amd64
-cp bin/acmetool /opt/local/bin/acmetool.real
-cd ..
-rm -rf acmetool-${acmetool_version}-solaris_amd64.tar.gz acmetool-${acmetool_version}-solaris_amd64
+# These were only necessary to install gsutil
+pkg_delete gcc13 binutils rust
 
-# Clean up
-echo "* Cleaning up."
-rm -rf /root/*
+# copy files over
+rsync -Pav copy/ /
 
-# gcc49/binutils was only necessary to install gsutil
-pkg_delete gcc49 binutils
+# Symlink hexd to hexdump for dehydrated
+ln -s /opt/local/bin/hexd /opt/local/bin/hexdump
 
 # Prepare image for provisioning
 sm-prepare-image -y

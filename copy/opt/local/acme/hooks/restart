@@ -1,9 +1,0 @@
-#!/bin/sh
-
-
-SERVICES="exim dovecot"
-
-for service in ${SERVICES}; do
-   svcadm restart $service
-done
-
