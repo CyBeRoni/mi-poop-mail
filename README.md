@@ -4,10 +4,12 @@ mi-poop-mail
 This is a machine image for an e-mail server based on Exim, Dovecot, Clamav and Spamassassin. It is
 suitable mostly for low to medium-volume use, such as for personal use or a small business.
 
+Use with minimal-64 image from SmartOS as a base; tested with minimal-64-trunk 20240116
 
-Please refer to https://github.com/joyent/mibe for use of this repo.
+To use: create a zone with above-mentined image, get this code onto it (curl the tarball from Github),
+execute the `customize` script and upon completion follow the instructions to create an image from 
+https://docs.smartos.org/managing-images/#creating-a-custom-zone-image.
 
-Use with base-64 image from Joyent; tested with 15.4.0.
 
 Metadata
 --------
@@ -34,7 +36,6 @@ When running, the following services are exposed to the network on both IPv4 and
 * 143, 993: IMAP (tls required)
 * 4190: ManageSieve (tls required)
 * 22: SSH (if not disabled)
-* 80: web (briefly, when requesting Let's Encrypt certificates only.)
 
 Data
 ----
@@ -44,9 +45,9 @@ mailboxes. Also on this dataset is the user information:
 * /srv/mail/passwd/&lt;domain&gt;: users per domain, formatted as user:passwd where passwd can be had using 'doveadm pw'
 * /srv/mail/aliases/&lt;domain&gt;: aliases per domain, formatted as user:destination
 
-TLS certificates from Let's Encrypt are used. They are stored on the delegated dataset in /srv/mail/ssl/acme. Acmetool
-is used to request them. By default the dovecot primary_hostname and system hostname are requested in a single cert. 
-To request more certificates, use `acmetool want`.
+TLS certificates from Let's Encrypt are used. They are stored on the delegated dataset in /srv/mail/ssl/dehydrated, 
+along with the configuration for Dehydrated which is used to request them. To request certificates, add them to 
+`domains.txt` in the above mentioned directory. By default, `dns-01` verification is used. 
 
 Exim keeps its spool in /srv/mail/exim/spool so it is preserved upon reprovision. Also there are some configuration
 lists in /srv/mail/exim/conf:
@@ -57,7 +58,6 @@ lists in /srv/mail/exim/conf:
 * relay_to_domains: domains to be a secondary mx for, or otherwise relay to without authentication
 * senderverify_exceptions: e-mail addresses to accept (on 'MAIL FROM:') without doing a verification callout
 * dkim_required: domains (wildcard-matched) for which a valid DKIM signature is required to accept e-mail
-
 
 Dovecot allows local configuration in /srv/mail/dovecot/conf/local.conf. This can be used for example to add an
 imapc config to migrate mail from another server. 
