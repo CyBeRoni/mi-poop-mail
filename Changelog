@@ -56,3 +56,11 @@ full backup
 mi-poop-mail 17.1.1
 - The switch to minimal has removed among other things GNU date, so use 
 dateutils to determine what backups to remove instead.
+
+mi-poop-mail (20241230)
+- Update to:
+  - exim 4.98
+  - dovecot 2.3.21.1
+  - base image from 2024
+- Switch to Dehydrated for Lets's encrypt TLS certs
+
