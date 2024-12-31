@@ -263,7 +263,7 @@ system_aliases:
 addressforwardmail:
   driver = redirect
   domains = dsearch;/srv/mail/aliases
-  data = ${lookup{$local_part}wildlsearch{/srv/mail/aliases/$domain}}
+  data = ${lookup{$local_part}wildlsearch{/srv/mail/aliases/$domain_data}}
   file_transport = address_file
   pipe_transport = address_pipe
 
