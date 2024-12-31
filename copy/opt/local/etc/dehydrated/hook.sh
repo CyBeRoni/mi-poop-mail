@@ -30,6 +30,7 @@ EOF
     "startup_hook")
         ;;
     "exit_hook")
+        chown -R mail /opt/local/etc/exim/ssl
         svcadm restart exim
         svcadm restart dovecot
         ;;
