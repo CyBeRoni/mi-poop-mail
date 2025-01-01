@@ -57,8 +57,5 @@ pkg_delete gcc13 binutils rust
 # copy files over
 rsync -Pav copy/ /
 
-# Symlink hexd to hexdump for dehydrated
-ln -s /opt/local/bin/hexd /opt/local/bin/hexdump
-
 # Prepare image for provisioning
 sm-prepare-image -y
