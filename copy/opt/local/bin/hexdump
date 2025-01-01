@@ -1,0 +1,3 @@
+#!/bin/bash
+
+exec od -t xC -An | tr -d '[:space:]'
