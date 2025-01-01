@@ -39,3 +39,8 @@ logadm -w /var/log/dovecot/main -p 1d -C 10 -N -o dovecot -g mail -m 660 -a "/op
 logadm -w /var/log/dovecot/info -p 1d -C 10 -N -o dovecot -g mail -m 660 -a "/opt/local/bin/doveadm log reopen"
 logadm -w /var/log/dovecot/debug -p 1d -C 10 -N -o dovecot -g mail -m 660 -a "/opt/local/bin/doveadm log reopen"
 
+# Compile system sieve files
+cd /opt/local/etc/dovecot/sieve_after
+for i in *.sieve; do sievec $i; done 
+
+
