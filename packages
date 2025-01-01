@@ -4,8 +4,6 @@ dovecot-pigeonhole
 exim
 spamassassin
 clamav
-p5-Mail-SPF
-p5-Mail-DKIM
 gcc13
 sudo
 rsyslog
@@ -14,5 +12,4 @@ py312-pip
 rust
 pkg-config
 dehydrated
-hexd
 jq
